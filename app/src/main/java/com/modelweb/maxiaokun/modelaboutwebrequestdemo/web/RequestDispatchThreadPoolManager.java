@@ -34,6 +34,7 @@ public class RequestDispatchThreadPoolManager {
     public int getPoolSize() {
         return poolSize;
     }
+
     public RequestDispatchThreadPoolManager setPoolSize(int poolSize) {
         this.poolSize = poolSize;
         return this ;
@@ -63,17 +64,11 @@ public class RequestDispatchThreadPoolManager {
 
     public RequestDispatchThreadPoolManager setType(int type) {
         this.type = type ;
-//        if (executorService != null) {
-//        } else {
-//            //如果为空的话就实例化一个默认的线程池
-//            executorService = initThreadPoolType(type);
-//        }
         return this;
     }
 
     private RequestDispatchThreadPoolManager() {
         if (executorService == null || executorService.isShutdown()) {
-//            setType(-1);//默认线程池
         }
     }
 
@@ -141,7 +136,43 @@ public class RequestDispatchThreadPoolManager {
         }
         return this;
     }
+    /**
+     * 很据业务选择初始化不同类型的线程池
+     * 默认为可定长度的线程池
+     *
+     * @param type inside the method
+     *                       0 为指定线程数newFixedThreadPool线程池
+     *                       1 为newCachedThreadPool缓存线程池
+     *                       2 newScheduledThreadPool 定时线程池
+     *                       3 newSingleThreadExecutor 单例线程池
+     *                       default 为指定线程数newFixedThreadPool线程池 个数为cpu个数*3 + 2
+     */
+    public RequestDispatchThreadPoolManager initThreadPoolType() {
+        if (executorService != null) {
+            return null;
+        }
 
+        switch (type) {
+            case CACHEDTHREADPOOLTYPE:
+                executorService = Executors.newCachedThreadPool();
+                break;
+
+            case SCHEDULEDTHREADPOOLTYPE:
+                executorService = Executors.newScheduledThreadPool(poolSize != 0 ? poolSize : DEFAULTTHREADSIZE);
+                break;
+
+            case SINGLETHREADEXECUTORTYPE:
+                executorService = Executors.newSingleThreadExecutor();
+                break;
+
+            case FIXEDTHREADPOOLTYPE:
+
+            default:
+                executorService = Executors.newFixedThreadPool(poolSize != 0 ? poolSize : DEFAULTTHREADSIZE);
+                break;
+        }
+        return this;
+    }
     /**
      * 启动默认线程池的网络管理请求类,这里可以不用双重校验锁
      *

@@ -57,7 +57,8 @@ public class WebAPIManager {
         if (requestDispatchThreadPoolManager == null) {
                  requestDispatchThreadPoolManager = RequestDispatchThreadPoolManager.getInstance().setType(type).
                     setPoolSize(poolSize < 0?DEFAULTTHREADSIZE:this.poolSize)
-                    .initThreadPoolType(type) ;
+                    .initThreadPoolType() ;
+            //TODO when setType() has been used ,u can use the the method of initThreadPoolType()without params
         }
     }
 
