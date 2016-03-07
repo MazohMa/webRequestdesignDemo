@@ -25,7 +25,7 @@ public class RequestDispatchThreadPoolManager {
 
 
     private int poolSize = 0;//指定线程池线程个数
-    private int type;//线程池类型
+    private int type = -1;//线程池类型
     private ExecutorService executorService;
 
     /**

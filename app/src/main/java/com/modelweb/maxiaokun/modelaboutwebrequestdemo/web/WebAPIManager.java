@@ -48,7 +48,7 @@ public class WebAPIManager {
         if (requestDispatchThreadPoolManager == null) {
             //默认线程池
             requestDispatchThreadPoolManager =  RequestDispatchThreadPoolManager.
-                    getInstance().initThreadPoolType(poolSize) ;
+                    getInstance().initThreadPoolType(-1) ;
 
         }
     }
