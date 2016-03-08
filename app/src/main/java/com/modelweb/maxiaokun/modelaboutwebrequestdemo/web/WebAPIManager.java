@@ -34,6 +34,9 @@ public class WebAPIManager {
     private String accessToken = "";
     private String clientId = "1";
     private String appVersion = "";
+    private static boolean needBufferDecorate = false ;
+    private static int writeByteSize = 1024 ;
+
 
     /**
      * 格式化log
@@ -72,6 +75,16 @@ public class WebAPIManager {
             synchronized (WebAPIManager.class) {
                 if (webAPIManager == null) {
                     webAPIManager = new WebAPIManager();
+                    if(needBufferDecorate){
+                        WebConnectionManager.getInstance().setDateType(WebConnectionManager.DateType.BUFFERSTREAM) ;
+                    }else{
+                        WebConnectionManager.getInstance().setDateType(WebConnectionManager.DateType.INPUTSTREAM) ;
+                    }
+                    if(writeByteSize > 0 && (writeByteSize % DEFAULTBYTESIZE == 0 )){
+                        WebConnectionManager.getInstance().setBufferSize(writeByteSize);
+                    }else{
+                        WebConnectionManager.getInstance().setBufferSize(DEFAULTBYTESIZE);
+                    }
                 }
             }
         }
@@ -84,7 +97,7 @@ public class WebAPIManager {
      * @param threadPoolType,线程池类型
      * @param poolSize,线程池大小
      * @param needBufferDecorate 去读字节流是否需要缓冲区
-     * @param  writeByteSize 一次写入流大小，1 为1024,2为2048.。。
+     * @param  writeByteSize 一次写入流大小1024的倍数
      * @return this
      */
     public static WebAPIManager getInstance(int threadPoolType, int poolSize,
@@ -98,7 +111,7 @@ public class WebAPIManager {
                     }else{
                         WebConnectionManager.getInstance().setDateType(WebConnectionManager.DateType.INPUTSTREAM) ;
                     }
-                    if(writeByteSize > 0){
+                    if(writeByteSize > 0 && (writeByteSize % DEFAULTBYTESIZE == 0 )){
                         WebConnectionManager.getInstance().setBufferSize(writeByteSize);
                     }else{
                         WebConnectionManager.getInstance().setBufferSize(DEFAULTBYTESIZE);
@@ -211,6 +224,7 @@ public class WebAPIManager {
                             if (WebResponse.CODE_SUCCESS.equals(webResponse.getCode())) {
                                 if (webResponseParser != null && webResponse.getResult() != null && webResponse.isHaveResultObject() == true) {
                                     webResponseParser.parse(webResponse);
+                                    //intent to setResultObject(T) in webResponse
                                 }
                                 handler.sendSuccess(webResponse);
                             } else {
@@ -229,7 +243,6 @@ public class WebAPIManager {
                 }
             });
         }
-//
     }
 
     @SuppressWarnings("unused")
@@ -281,7 +294,6 @@ public class WebAPIManager {
                     }
                 }
             });
-//
         }
     }
 
@@ -447,4 +459,42 @@ public class WebAPIManager {
         this.appVersion = appVersion;
     }
 
+    public boolean isNeedBufferDecorate() {
+        return needBufferDecorate;
+    }
+
+    /**
+     * 动态设置是否需要缓冲区装饰
+     * @param needBufferDecorate
+     * @return
+     */
+    public WebAPIManager setNeedBufferDecorate(boolean needBufferDecorate) {
+        this.needBufferDecorate = needBufferDecorate;
+        if(needBufferDecorate){
+            WebConnectionManager.getInstance().setDateType(WebConnectionManager.DateType.BUFFERSTREAM) ;
+        }else{
+            WebConnectionManager.getInstance().setDateType(WebConnectionManager.DateType.INPUTSTREAM) ;
+        }
+
+        return this ;
+    }
+
+    public int getWriteByteSize() {
+        return writeByteSize;
+    }
+
+    /**
+     * 动态设置写入io流的大小
+     * @param writeByteSize
+     * @return
+     */
+    public WebAPIManager setWriteByteSize(int writeByteSize) {
+        this.writeByteSize = writeByteSize;
+        if(writeByteSize > 0 && (writeByteSize % DEFAULTBYTESIZE == 0)){
+            WebConnectionManager.getInstance().setBufferSize(writeByteSize);
+        }else{
+            WebConnectionManager.getInstance().setBufferSize(DEFAULTBYTESIZE);
+        }
+        return this ;
+    }
 }

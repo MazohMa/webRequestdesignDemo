@@ -5,14 +5,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-/**
- * WebResponseHandler
- *
- *  @Description
- * @author Mazoh
- * @createDate 2015年7月18日
- * @version 1.0.0
- */
 
 public abstract class WebResponseHandler<T> {
 	public String tag = "WebResponseHandler";
